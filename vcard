@@ -1,0 +1,261 @@
+#!/bin/bash
+# 
+# Constructs a simplified Vcard version 3.0
+#
+# DESCRIPTION: The vcard shell script will creates a vcard by asking the user 
+# a series of questions to fill its fields out. These include full name and
+# optional telephone numberes, email address, and organization-department.
+# At the end of the script, it prompts user to add another vcard to the end
+# of the file if s/he wants to.
+#
+# SYNOPSIS:  vcard file 
+#
+# OUTPUT: If the file exists, vcard will append the output to the end of the 
+# file. Otherwise it generates the vcard with given name on the current directory.
+#
+# NOTE: This version allows user to quit at the beginning of each field to quit.
+# If user enters an invalid data, vcard prompts again until it gets a valid input.  
+
+error () {
+    # error: output an error message and return
+    # the error messages contain the program name
+    # and are written to standard error
+
+    local prog=$(basename $0)
+    echo -e "$prog:ERROR: $*">&2
+}
+ 
+fatal() {
+    # fatal: output an error message and then exit
+    # the error() function is used.
+    local prog=$(basename $0)
+    error $*
+    # if you want to output a message about how to successfully
+    # run your program (called a 'usage message'), this would
+    # be the place to do it
+    echo -e "$prog: USAGE: $prog vcardfile" >&2
+    # now exit with an error
+    exit 1
+}
+
+header() {
+    # header: generates header of the Vcard
+    echo -e "BEGIN:VCARD\nVERSION:3.0"
+}
+
+footer() {
+    # footer: generates footer of the Vcard
+    echo "END:VCARD"
+}
+
+fix() {
+    # precede each instance in $1 of , and ; with \ 
+    # and output the result
+    echo "$1" | sed 's/\([,;]\)/\\\1/g'
+}
+
+name() {
+    # name: gets the user's full name piece by piece, then
+    # constructs N and FN fields of the Vcard.
+    # It consists of first, last, middle (optional) names
+    # and prefix (optional). Note: suffix is not supported.
+    local first last middle prefix
+    echo "Enter the name data:" >&2
+    # prompts user for prefix
+    while :; do
+        read -p "Prefix (Mr.,Mrs.,Ms.,Dr.)(empty for no prefix): " prefix
+        [ -z "$prefix" ] && break
+        [ "$prefix" = q ] && return 1
+        ! echo $prefix | grep -E -e '[Mm][rs]\.?' -e '[Dd]r\.?' -e '[Mm]rs\.?' >/dev/null \
+        && echo "prefix must be one of Mr. or Mrs. or Ms. or Dr." >&2 && continue
+        break
+    done
+    prefix=$(fix "$prefix")
+    [ "${prefix%.}" != "$prefix" ] || prefix=$prefix.
+    # prompts user for first name
+    while :; do
+        read -p "First name: " first
+        if [ -z "$first" ]; then 
+            echo "First name cannot be left empty" >&2
+        else
+            break
+        fi
+    done
+    first=$(fix "$first")
+    # prompts user for last name
+    while :; do
+        read -p "Last name: " last
+        if [ -z "$last" ]; then 
+            echo "Last name cannot be left empty" >&2
+        else
+            break
+        fi
+    done
+    last=$(fix "$last")
+    # prompts user for middle name
+    read -p "Middle name (empty to skip): " middle
+    middle=$(fix "$middle")
+    # output FN field
+    echo -n "FN:$prefix $first "
+    [ -n "$middle" ] && echo -n "$middle "
+    echo "$last"
+    # output N field
+    echo "N:$last;$first;$middle;$prefix;"
+}
+
+org() {
+    # org: constructs organization field of the Vcard.
+    local co dept
+    read -p "Company name (empty to skip): " co
+    [ -z "$co" ] && return 0
+    [ "$co" = q ] && return 1
+    read -p "Department name (empty to skip): " dept
+    co=$(fix "$co")
+    dept=$(fix "$dept")
+    echo "ORG:$co;$dept"
+}
+
+telephone() {
+    # telephone: prompts user for valid cell, home and 
+    # work numbers and then consctruct telephone field.
+    local phn
+    phnlist="CELL HOME,VOICE WORK,VOICE"
+    for phn in $phnlist; do
+        while :; do
+            read -p "$phn phone (empty if none): " phnn
+            [ -z "$phnn" ] && break
+            [ "$phnn" = q ] && return 1
+            ! echo "$phnn" | grep -E '^(\([[:digit:]]{3}\)|[[:digit:]]{3}[-. ]?)[[:digit:]]{3}[-. ]?[[:digit:]]{4}$' >/dev/null \
+            && echo "'$phnn' is not a valid telephone number" >&2 && continue
+        echo "TEL;TYPE=$phn:$phnn"    
+        break
+        done
+    done
+}
+
+email() {
+    # email: prompts user for a valid email address
+    # and then consctruct email field.
+    local eml
+    while :; do
+        read -p "Email address (empty to skip email): " eml
+        [ -z "$eml" ] && return 0
+        [ "$eml" = q ] && return 1
+        ! echo "$eml" | grep -E '^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$' >/dev/null \
+        && echo "'$eml' is not a valid email address" >&2 && continue
+        break
+    done
+    echo "EMAIL;TYPE=INTERNET:$eml"
+}
+
+isint() {
+    # isint: checks if its argument contains integers only.
+    if ! [[ "$1" =~ ^[[:digit:]]+$ ]] ;then
+        echo "'$1' is not an integer" >&2
+        return 1
+    fi
+}
+
+bday() {
+    # bday: prompts user for his/her full birthday.
+    # It checks for valid inputs after each input. If any
+    # part of date (month/day/year) is invalid it prompts
+    # for full birthday again.
+    local year day month curyear
+    echo "Enter birthday:" >&2
+    while :; do
+        read -p "Enter full birthday (empty to skip birthday): " fdate
+        [ -z "$fdate" ] && return 0
+        [ "$fdate" = q ] && return 1
+        # user can enter his/her birthday using one of 
+        # these delimiters: whitespace / : -
+        if echo $fdate | grep '/' >/dev/null; then
+            month=$(echo $fdate | cut -d/ -f1)
+            day=$(echo $fdate | cut -d/ -f2)
+            year=$(echo $fdate | cut -d/ -f3)
+        elif echo $fdate | grep ':' >/dev/null; then
+            month=$(echo $fdate | cut -d: -f1)
+            day=$(echo $fdate | cut -d: -f2)
+            year=$(echo $fdate | cut -d: -f3)
+        elif echo $fdate | grep '-' >/dev/null; then
+            month=$(echo $fdate | cut -d- -f1)
+            day=$(echo $fdate | cut -d- -f2)
+            year=$(echo $fdate | cut -d- -f3)
+        elif echo $fdate | grep ' ' >/dev/null; then
+            month=$(echo $fdate | cut -d' ' -f1)
+            day=$(echo $fdate | cut -d' ' -f2)
+            year=$(echo $fdate | cut -d' ' -f3)        
+        else
+        echo "invalid date format: valid delimiters are: whitespace / : -" >&2 && continue
+        fi
+        # year must be integer. 
+        isint "$year" || continue
+        # year cannot be in the future or more than 120 years ago.
+        curyear=$(date "+%Y")
+        ((curyear - year > 120)) && echo "sorry. you're too old to be alive!" >&2 && continue
+        ((curyear < year)) && echo "you haven't been born yet?" >&2 && continue
+        # month must be integer.
+        isint "$month" || continue
+        # month cannot be zero or greater than 12.
+        [ "$month" -eq 0 -o "$month" -gt 12 ] && echo "month must be in [1,12]" >&2 && continue
+        # day must be integer.
+        isint "$day" || continue
+        # month cannot be zero or greater than 31.
+        [ "$day" -eq 0 -o "$day" -gt 31 ] && echo "day must be in [1,31]" >&2 && continue
+        break
+    done
+    # add a preceding zero to one digit entries.
+    [ "${#day}" -eq 1 ] && day=0${day}
+    [ "${#month}" -eq 1 ] && month=0${month}
+    echo "BDAY:$year-$month-$day"
+}
+
+note() {
+    # note: generates note field of the Vcard
+    local note1
+    read -p "Note (empty to skip): " note1
+    [ "$note1" = q ] && return 1
+    note1=$(fix "$note1")
+    echo "NOTE:$note1"
+}
+
+vcard1() {
+    # Assembles all fields of the vcard.
+    header
+    name || return 1
+    org || return 1
+    telephone || return 1
+    email || return 1
+    bday || return 1
+    note
+    footer
+}
+
+[ $# -ne 1 ] && fatal "argument missing"
+vcfile=$1
+if [ -e "$vcfile" ]; then
+    [ ! -w "$vcfile" ] && fatal "'$vcfile' is not writable" 
+else
+    vcdir=$(dirname "$vcfile")
+    ! [ -w "$vcdir" -a -x "$vcdir" ] && fatal "'$vcdir' needs wx premissions"
+fi
+
+# create a temp file for the current vcf
+thisvcf=$(mktemp)
+
+# this redirects all further stdout to the temp file
+# MAKE SURE from this point on, that all prompts and error messages to to stderr
+exec > "$thisvcf"
+
+# a loop to allow user to create multiple vards
+while :; do
+    # call the function to create a single vcard. If it succeeds,
+    # append the current vcard to the file. otherwise give an error message
+    echo "Entering new vcard..." >&2
+    vcard1 && cat "$thisvcf" >> "$vcfile" || error "bad vcard entry!"
+
+    read -p "Another vcard?(y=yes):" repeat
+    [[ "$repeat" = y* ]] || break
+done
+
+rm -f "$thisvcf"

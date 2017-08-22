@@ -1,0 +1,191 @@
+Script started on Mon 12 Dec 2016 03:10:27 AM PST
+[kvossoug@hills asmt04]$ # ******* Asmt04 Kaveh                        # *******  Kaveh Vossoughi
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ date
+Mon Dec 12 03:11:00 PST 2016
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ pwd
+/students/kvossoug/cs160b/asmt04
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ uptime
+ 03:11:07 up 96 days, 20:14, 13 users,  load average: 0.14, 0.21, 0.17
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ id
+uid=40563(kvossoug) gid=506(students) groups=506(students),996(c72119),1056(c73582),1057(c73793),1080(c72720),1085(c71756)
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ hostname
+hills.ccsf.cc.ca.us
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ ./vcard asmt04.vcf
+Entering new vcard...
+Enter the name data:
+Prefix (Mr.,Mrs.,Ms.,Dr.)(empty for no prefix): Ms.
+First name: Ruth
+Last name: gin   Ginsburg
+Middle name (empty to skip): Bader
+Company name (empty to skip): SCOTUS
+Department name (empty to skip): Justice, Associate
+CELL phone (empty if none): 8002221111
+HOME,VOICE phone (empty if none): 
+WORK,VOICE phone (empty if none): 
+Email address (empty to skip email): rbg@scotus.gov
+Enter birthday:
+Enter full birthday (empty to skip birthday): 3/13/1933
+Note (empty to skip): 
+Another vcard?(y=yes):y
+Entering new vcard...
+Enter the name data:
+Prefix (Mr.,Mrs.,Ms.,Dr.)(empty for no prefix): mr,   mr.
+First name: Barak
+Last name: Obama
+Middle name (empty to skip): Hussein
+Company name (empty to skip): Executive Branch, US Government
+Department name (empty to skip): preside       President
+CELL phone (empty if none): 
+HOME,VOICE phone (empty if none): (202)456-1414
+WORK,VOICE phone (empty if none): 202.456.14141             202.456.1414
+Email address (empty to skip email): prez@whitehouse.gov
+Enter birthday:
+Enter full birthday (empty to skip birthday): 08:04:1961
+Note (empty to skip): Outgoing president; Donald J. trump becomes president Jan 20, 2017.
+Another vcard?(y=yes):n
+[kvossoug@hills asmt04]$ ls
+asmt04.script  asmt04.vcf  vcard
+[kvossoug@hills asmt04]$ cat asmt04.vcf
+BEGIN:VCARD
+VERSION:3.0
+FN:Ms. Ruth Bader Ginsburg
+N:Ginsburg;Ruth;Bader;Ms.;
+ORG:SCOTUS;Justice\, Associate
+TEL;TYPE=CELL:8002221111
+EMAIL;TYPE=INTERNET:rbg@scotus.gov
+BDAY:1933-03-13
+NOTE:
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:Ms. Ruth Bader Ginsburg
+N:Ginsburg;Ruth;Bader;Ms.;
+ORG:SCOTUS;Justice\, Associate
+TEL;TYPE=CELL:8002221111
+EMAIL;TYPE=INTERNET:rbg@scotus.gov
+BDAY:1933-03-13
+NOTE:
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:mr. Barak Hussein Obama
+N:Obama;Barak;Hussein;mr.;
+ORG:Executive Branch\, US Government;President
+TEL;TYPE=HOME,VOICE:(202)456-1414
+TEL;TYPE=WORK,VOICE:202.456.1414
+EMAIL;TYPE=INTERNET:prez@whitehouse.gov
+BDAY:1961-08-04
+NOTE:Outgoing president\; Donald J. trump becomes president Jan 20\, 2017.
+END:VCARD
+[kvossoug@hills asmt04]$ #
+[kvossoug@hills asmt04]$ # try to quit after th                        # try to quit after the first question in a section
+[kvossoug@hills asmt04]$ # then o        # then go on and make some errors
+[kvossoug@hills asmt04]$ ./vcard asmt04.vcf
+Entering new vcard...
+Enter the name data:
+Prefix (Mr.,Mrs.,Ms.,Dr.)(empty for no prefix): Hr.
+prefix must be one of Mr. or Mrs. or Ms. or Dr.
+Prefix (Mr.,Mrs.,Ms.,Dr.)(empty for no prefix): Mr  
+First name: q
+Last name: q
+Middle name (empty to skip): oops
+Company name (empty to skip): q
+vcard:ERROR: bad vcard entry!
+Another vcard?(y=yes):y
+Entering new vcard...
+Enter the name data:
+Prefix (Mr.,Mrs.,Ms.,Dr.)(empty for no prefix): 
+First name: Sally
+Last name: Rafaed      Rafael
+Middle name (empty to skip): Jesse
+Company name (empty to skip): 
+CELL phone (empty if none): 415-652-145
+'415-652-145' is not a valid telephone number
+CELL phone (empty if none): (415)-652-1455
+'(415)-652-1455' is not a valid telephone number
+CELL phone (empty if none): 
+HOME,VOICE phone (empty if none): q
+vcard:ERROR: bad vcard entry!
+Another vcard?(y=yes):y
+Entering new vcard...
+Enter the name data:
+Prefix (Mr.,Mrs.,Ms.,Dr.)(empty for no prefix): 
+First name: Sally
+Last name: Jes   Rafael
+Middle name (empty to skip): Jesse
+Company name (empty to skip): 
+CELL phone (empty if none): 
+HOME,VOICE phone (empty if none): 
+WORK,VOICE phone (empty if none): 
+Email address (empty to skip email): 
+Enter birthday:
+Enter full birthday (empty to skip birthday): 01-11-2018
+you haven't been born yet?
+Enter full birthday (empty to skip birthday): 01-11-20        01-11-1880
+sorry. you're too old to be alive!
+Enter full birthday (empty to skip birthday): 0-11-1918
+month must be in [1,12]
+Enter full birthday (empty to skip birthday): 05-40-1918
+day must be in [1,31]
+Enter full birthday (empty to skip birthday): 04-31-1918
+Note (empty to skip): 
+Another vcard?(y=yes):n
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ cat asmt04.vcf
+BEGIN:VCARD
+VERSION:3.0
+FN:Ms. Ruth Bader Ginsburg
+N:Ginsburg;Ruth;Bader;Ms.;
+ORG:SCOTUS;Justice\, Associate
+TEL;TYPE=CELL:8002221111
+EMAIL;TYPE=INTERNET:rbg@scotus.gov
+BDAY:1933-03-13
+NOTE:
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:Ms. Ruth Bader Ginsburg
+N:Ginsburg;Ruth;Bader;Ms.;
+ORG:SCOTUS;Justice\, Associate
+TEL;TYPE=CELL:8002221111
+EMAIL;TYPE=INTERNET:rbg@scotus.gov
+BDAY:1933-03-13
+NOTE:
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:mr. Barak Hussein Obama
+N:Obama;Barak;Hussein;mr.;
+ORG:Executive Branch\, US Government;President
+TEL;TYPE=HOME,VOICE:(202)456-1414
+TEL;TYPE=WORK,VOICE:202.456.1414
+EMAIL;TYPE=INTERNET:prez@whitehouse.gov
+BDAY:1961-08-04
+NOTE:Outgoing president\; Donald J. trump becomes president Jan 20\, 2017.
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:. q oops q
+N:q;q;oops;.;
+BEGIN:VCARD
+VERSION:3.0
+FN:. Sally Jesse Rafael
+N:Rafael;Sally;Jesse;.;
+BEGIN:VCARD
+VERSION:3.0
+FN:. Sally Jesse Rafael
+N:Rafael;Sally;Jesse;.;
+BDAY:1918-04-31
+NOTE:
+END:VCARD
+[kvossoug@hills asmt04]$ 
+[kvossoug@hills asmt04]$ exit
+exit
+
+Script done on Mon 12 Dec 2016 03:22:27 AM PST
